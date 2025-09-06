@@ -1,0 +1,139 @@
+import streamlit as st
+import pickle
+import joblib
+import sklearn
+import os
+import pandas as pd
+from tensorflow import keras
+import tensorflow as tf
+
+st.title('10Pearls-AQI Predictor')
+st.write('This web app uses a machine learning model to\
+          predict the Air Quality Index (AQI) of a city\
+          based on the input features such as\
+          T,TM,SLP,H,VV,V,VM')
+
+model_names = ['random_forest_regression_model', 'decision_regression_model','XGTBoost-Regressor_model']
+model_selection= st.selectbox('Select Model', model_names)
+
+tensor=['NN_model']
+tensor_selection=st.selectbox('TensorFlow Model',tensor)
+
+if model_selection == 'random_forest_regression_model':
+    model_path = "D:/10Pearls-AQI/random_forest_regression_model.pkl"
+elif model_selection == 'decision_regression_model':
+    model_path = "D:/10Pearls-AQI/decision_regression_model.pkl"
+elif model_selection == 'XGTBoost-Regressor_model':
+    model_path = "D:/10Pearls-AQI/XGTBoost-Regressor_model.pkl"
+   
+   
+with open(model_path, "rb") as f:
+    model = pickle.load(f)
+
+tensor_selection == 'NN_model'
+tensor_path = "D:/10Pearls-AQI/NN_model.h5"
+
+tensor_model = tf.keras.models.load_model(tensor_path)
+
+st.sidebar.title('Input Parameters')
+
+T = st.sidebar.number_input('T', min_value=0.0, max_value=500.0, value=25.0, step = 10.0)
+TM = st.sidebar.number_input('TM', min_value=0.0, max_value=500.0, value=25.0, step = 10.0)
+Tm = st.sidebar.number_input('Tm', min_value=0.0, max_value=500.0, value=25.0, step = 10.0)
+SLP = st.sidebar.number_input('SLP', min_value=0.0, max_value=500.0, value=25.0, step = 10.0)
+H = st.sidebar.number_input('H', min_value=0.0, max_value=500.0, value=25.0, step = 10.0)
+VV= st.sidebar.number_input('VV', min_value=0.0, max_value=40.0, value=0.5, step = 0.5)
+V= st.sidebar.number_input('V', min_value=0.0, max_value=40.0, value=0.5, step = 0.5)
+VM = st.sidebar.number_input('VM', min_value=0.0, max_value=1000.0, value=25.0, step = 10.0)
+
+input_data = {
+    'T': [T],
+    'TM': [TM],
+    'Tm':[Tm],
+    'SLP': [SLP],
+    'H': [H],
+    'VV': [VV],
+     'V':[V],
+    'VM': [VM]
+              
+}
+
+input_df = pd.DataFrame(input_data)
+required_features = ["T","TM","Tm","SLP","H","VV","V","VM"]
+for col in required_features:
+    if col not in input_df.columns:
+        input_df[col] = 0  # or some other default value
+
+input_df = input_df[required_features]   # ensure correct order
+
+ # Create a tensor with shape (1, 9) for batch size 1 and 9 features
+tensor_data = tf.constant([[T,TM,Tm,SLP,H,VV,V,VM]], dtype=tf.float32)
+# Create two columns for the UI
+col1, col2 = st.columns([1, 1])
+# Place the subheader in the first column
+col1.subheader('Click on the Button to predict')
+# --- Prediction Button ---
+if st.button("Predict AQI"):
+    prediction = model.predict(input_df)
+    
+    color_ranges = {
+        (0, 50): '#1FE140',
+        (51, 100): '#F5B700',
+        (101, 150): '#F26430',
+        (151, 200): '#DF2935',
+        (201, 300): '#D77A61',
+        (301, float('inf')): '#4D5061'
+    }
+
+    aqi_quality_table = {
+        (0, 50): 'Good',
+        (51, 100): 'Satisfactory',
+        (101, 150): 'Moderate',
+        (151, 200): 'Poor',
+        (201, 300): 'Very Poor',
+        (301, float('inf')): 'Severe'
+    }
+
+    # Find the appropriate color for the prediction
+    prediction_color = 'black'  # Default color if not found in color_ranges
+    aqi_quality = ''
+    for range_, color in color_ranges.items():
+        if range_[0] <= prediction <= range_[1]:
+            prediction_color = color
+            aqi_quality = aqi_quality_table[range_]
+            break
+
+    # Display the predicted AQI with the selected color in a colored box
+    st.markdown(f"""
+    <div style="background-color:{prediction_color}; padding:10px; border-radius:5px;">
+        <p style="color:white; font-size:25px;">{aqi_quality}</p>
+        <p style="color:white; font-size:25px;">Predicted AQI: {prediction:.2f}</p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+    aqi_value = prediction[0]
+    st.success(f"Predicted AQI: **{aqi_value:.2f}**")
+
+col1, col2 = st.columns([1, 1])
+col1.subheader('Click on the Button to predict')
+# --- Prediction Button ---
+if st.button("Tensor-Predict AQI"):
+    tensor_prediction = tensor_model.predict(tensor_data)
+    st.success(f"Tensor-AQI: **{tensor_prediction.item():.2f}**")
+
+
+
+# Load and display images in a single frame
+image_folder = 'images'
+image_files = sorted(os.listdir(image_folder))
+
+# Choose an initial image index
+st.subheader("Project Images")
+image_index = st.slider("Slide Images", 0, len(image_files) - 1, 0)
+
+# Display the selected image
+image_path = os.path.join(image_folder, image_files[image_index])
+image_title = image_files[image_index][2:].split('.')[0].replace('_', ' ').title()
+st.title(image_title)
+st.image(image_path, use_container_width=True)
