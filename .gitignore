@@ -13,12 +13,7 @@ venv/
 env/
 ENV/
 
-# Model Artifacts (Too large for Git, fetch from Registry instead)
-models/*.pkl
-models/*.h5
-models/*.keras
-models/*.json
-!models/.gitkeep
+
 
 # IDE & Editor
 .vscode/
@@ -28,9 +23,6 @@ models/*.json
 *~
 .DS_Store
 
-# Jupyter & Notebooks
-.ipynb_checkpoints/
-*.ipynb
 
 # Testing & Coverage
 .pytest_cache/
