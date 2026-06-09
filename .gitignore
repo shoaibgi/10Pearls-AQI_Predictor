@@ -1,0 +1,56 @@
+# Environment Variables (NEVER COMMIT THIS)
+.env
+.env.local
+.env.*.local
+
+# Python & Virtual Environment
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+myenv/
+venv/
+env/
+ENV/
+
+# Model Artifacts (Too large for Git, fetch from Registry instead)
+models/*.pkl
+models/*.h5
+models/*.keras
+models/*.json
+!models/.gitkeep
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter & Notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Data Files
+data/
+*.csv
+*.xlsx
+
+# Streamlit Secrets
+.streamlit/secrets.toml
+.streamlit/.secrets.toml
+
+# MacOS
+.AppleDouble
+.LSOverride
+*.pem
+
+# Windows
+Thumbs.db
+*.lnk

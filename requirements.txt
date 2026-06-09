@@ -1,0 +1,16 @@
+pandas
+numpy
+openmeteo-requests
+retry-requests
+supabase
+python-dotenv
+scikit-learn
+xgboost 
+tensorflow 
+joblib 
+streamlit
+plotly
+requests
+pytz
+shap
+matplotlib
